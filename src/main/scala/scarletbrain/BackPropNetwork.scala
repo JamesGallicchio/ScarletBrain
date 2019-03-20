@@ -6,7 +6,7 @@ import scarletbrain.LinearAlgebra._
 
 import scala.annotation.tailrec
 
-class BackPropNetwork(lyr: List[Layer]) extends FeedForwardNetwork(lyr) {
+case class BackPropNetwork(override val layers: List[Layer]) extends FeedForwardNetwork(layers) {
 
   // Cost squared
   def cost(in: Vector, out: Vector): Double = (evaluate(in) - out).mag2
