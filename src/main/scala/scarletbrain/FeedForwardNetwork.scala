@@ -24,7 +24,6 @@ object FeedForwardNetwork {
       }.toList
     )
 
-
   case class Layer(weight: Matrix, bias: Vector, act: Activation) {
     override def toString: String = s"Layer(weight = $weight,\n      bias = $bias,\n      act = $act)"
   }

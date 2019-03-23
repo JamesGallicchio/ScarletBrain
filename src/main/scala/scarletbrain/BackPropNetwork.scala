@@ -6,7 +6,7 @@ import scarletbrain.LinearAlgebra._
 
 import scala.annotation.tailrec
 
-case class BackPropNetwork(override val layers: List[Layer]) extends FeedForwardNetwork(layers) {
+class BackPropNetwork(override val layers: List[Layer]) extends FeedForwardNetwork(layers) {
 
   // Cost squared
   def cost(in: Vector, out: Vector): Double = (evaluate(in) - out).mag2
@@ -60,7 +60,7 @@ case class BackPropNetwork(override val layers: List[Layer]) extends FeedForward
 }
 
 object BackPropNetwork {
-
+  def apply(layers: List[Layer]): BackPropNetwork = new BackPropNetwork(layers)
 
   case class Gradient(grads: List[(Matrix, VectorGeneric)]) extends AnyVal {
     def +(g: Gradient): Gradient =
