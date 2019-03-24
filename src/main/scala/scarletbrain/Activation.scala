@@ -1,6 +1,6 @@
 package scarletbrain
 
-trait Activation {
+sealed trait Activation {
   def apply(x: Double): Double
   def deriv(x: Double): Double
 }
