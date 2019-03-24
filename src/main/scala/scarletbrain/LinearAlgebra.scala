@@ -69,6 +69,16 @@ object LinearAlgebra {
       Matrix(a, arr.length, v.arr.length)
     }
 
+    def expand(newLength: Int): Vector = if (newLength < arr.length) lengthError() else {
+      val a = new Array[Double](newLength)
+      var i = 0
+      while (i < arr.length) {
+        a(i) = arr(i)
+        i += 1
+      }
+      Vector(a)
+    }
+
     def map(f: Double => Double): Vector = {
       val a = new Array[Double](arr.length)
       var i = 0
@@ -103,7 +113,31 @@ object LinearAlgebra {
     def apply(values: Double*): Vector = new Vector(values.toArray)
   }
 
-  case class Matrix private (private[LinearAlgebra] val arr: Array[Double], rows: Int, cols: Int) {
+  /**
+    * Matrix of doubles with dimensions rows x cols, backed by a 1d array.
+    * Stored row-first, e.g. for a 3x4 matrix the array indices would be:
+    *     0  1  2  3
+    *     4  5  6  7
+    *     8  9 10 11
+    *
+    * @param arr array backing the matrix
+    * @param rows number of rows
+    * @param cols number of columns
+    */
+  case class Matrix private (arr: Array[Double], rows: Int, cols: Int) {
+
+    def apply(r: Int, c: Int): Double = arr(r*cols+c)
+
+    lazy val mag2: Double = {
+      var total = 0.0
+      var i = 0
+      while (i < arr.length) {
+        total += arr(i) * arr(i)
+        i += 1
+      }
+      total
+    }
+
     def +(mx: Matrix): Matrix = if (arr.length != mx.arr.length) lengthError() else {
       val other = mx.arr
       val a = new Array[Double](arr.length)
@@ -117,13 +151,20 @@ object LinearAlgebra {
       var i = 0
       while (i < arr.length) { a(i) = arr(i) + s ; i += 1 }
       Matrix(a, rows, cols)
-  }
+    }
 
     def -(mx: Matrix): Matrix = if (arr.length != mx.arr.length) lengthError() else {
       val other = mx.arr
       val a = new Array[Double](arr.length)
       var i = 0
       while (i < arr.length) { a(i) = arr(i) - other(i) ; i += 1 }
+      Matrix(a, rows, cols)
+    }
+
+    def *(s: Double): Matrix = {
+      val a = new Array[Double](arr.length)
+      var i = 0
+      while (i < arr.length) { a(i) = arr(i) * s; i += 1 }
       Matrix(a, rows, cols)
     }
 
@@ -159,21 +200,20 @@ object LinearAlgebra {
       Vector(a)
     }
 
-    def *(s: Double): Matrix = {
-      val a = new Array[Double](arr.length)
-      var i = 0
-      while (i < arr.length) { a(i) = arr(i) * s; i += 1 }
-      Matrix(a, rows, cols)
-    }
-
-    lazy val mag2: Double = {
-      var total = 0.0
-      var i = 0
-      while (i < arr.length) {
-        total += arr(i) * arr(i)
-        i += 1
+    def expand(newRows: Int, newCols: Int): Matrix = if (newRows < rows || newCols < cols) lengthError() else {
+      val a = new Array[Double](newRows*newCols)
+      var r = 0
+      while (r < rows) {
+        val offset = r*cols
+        val newOffset = r*newCols
+        var c = 0
+        while (c < cols) {
+          a(newOffset + c) = arr(offset + c)
+          c += 1
+        }
+        r += 1
       }
-      total
+      Matrix(a, newRows, newCols)
     }
 
     lazy override val toString: String = s"Matrix(rows = $rows, cols = $cols, ${arr.mkString(",")})"
